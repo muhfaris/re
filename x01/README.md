@@ -6,6 +6,7 @@
 
 ## Configuration
 ` set disasembly-flavor intel `
+
 konfigurasi ini bertujuan agar aplikasi gdb dapat menampilkan syntax intel.
 
 ## 0x1 - Menganalisa printf text
@@ -48,7 +49,8 @@ akan muncul semua bagian dari program, coba cari bagian main. kurang lebih seper
 
 bagian `0000000000000605 <main>:` ini maksudnya fungsi main beralamat di `0000000000000605`.
 alamat `605`, `606` adalah prolog program.
-pada bagian `614:	48 8d 3d 99 00 00 00 	lea    rdi,[rip+0x99]        # 6b4 <_IO_stdin_used+0x4>`, berhubungan dengan pemanggilan fungsi printf / input-output. terus dimana lokasi string `b01ler up` yang ada padaprogram ??.
+pada bagian `614:	48 8d 3d 99 00 00 00 	lea    rdi,[rip+0x99]        # 6b4 <_IO_stdin_used+0x4>`, berhubungan dengan pemanggilan fungsi printf / input-output. terus dimana lokasi string `b01ler up` yang ada pada program ??.
+
 perhatikan baris tersebut ada intruksi `lea`, intruksi ini memberitahu pada si CPU untuk memuat alamat `0x99 byte` yang ada di alamat `#6b4`.
 
 sekarang cari alamat `#6b4`, outpunya seperti ini :
@@ -67,10 +69,11 @@ Disassembly of section .rodata:
 
 dan ternyata alamat `#6b4` adalah alamat untuk bagian program data / `.rodata`. jika kita lihat alamat `0x6b4` dan seterusnya kita lihat byte- byte dalam format ASCII yang mempresentasikan text string.
 untuk membuktikannya kita coba pake python untuk melakukan convert dari ASCII ke string.
-``` >>> [chr(x) for x in [0x62, 0x30,0x31,0x6c,0x65,0x72,0x20,0x75,0x70,0x21,0x00]]
+```
+>>> [chr(x) for x in [0x62, 0x30,0x31,0x6c,0x65,0x72,0x20,0x75,0x70,0x21,0x00]]
 ['b', '0', '1', 'l', 'e', 'r', ' ', 'u', 'p', '!', '\x00']
 ```
-benar bukan, ada cara lain juga untuk membaca ada text string atau tidak dalam program, menggunakan perintah `strings b01ler`. tapi hal ini bisa jadi berbahaya karena bisa jadi ketika menjalankan `string b01ler` ada exploit yang jalan tanpa kita tahu (https://lcamtuf.blogspot.com/2014/10/psa-dont-run-strings-on-untrusted-files.html)
+benar bukan, sebenarnya ada cara lain juga untuk membaca ada text string atau tidak dalam program yaitu menggunakan perintah `strings b01ler`. tapi hal ini bisa jadi berbahaya karena bisa jadi ketika menjalankan `string b01ler` ada exploit yang jalan tanpa kita tahu (https://lcamtuf.blogspot.com/2014/10/psa-dont-run-strings-on-untrusted-files.html)
 
 dan terakhir dari kode `return 0` setelah pemanggilan string.
 ```
